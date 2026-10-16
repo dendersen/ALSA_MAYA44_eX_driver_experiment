@@ -10,10 +10,11 @@ probe/remove, PM suspend/resume, `index`/`id`/`enable` module arrays).
 
 - `hw:eX,0` = out/in 1/2, `hw:eX,1` = out/in 3/4; stereo `S32_LE` (24-bit
   left-justified), 1024-frame periods, 2 periods.
-- 44.1 kHz only by default (the one rate proven on hardware); `unverified_rates=1`
-  adds 32/48 kHz.
+- 32, 44.1 and 48 kHz by default; clock words timed against the wall clock on
+  hardware. `unverified_rates=1` adds 88.2/96 kHz (clock timed, codec side not
+  proven). `rate_sweep.sh` / `rate_check.sh` are the timing helpers.
 - Mixer: per-codec DAC volume/switch and ADC gain.
 - Register map derived from traces of the vendor Windows driver, not vendor docs.
-  Input mapping, input routing/phantom power and 88.2/96 kHz are not supported.
+  Input mapping, input routing/phantom power and S/PDIF are not supported.
 - Hardware is a shared-clock group: streams must use the same rate.
 - Suspend/resume implemented but untested.
