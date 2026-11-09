@@ -7,6 +7,13 @@ probe/remove, PM suspend/resume, `index`/`id`/`enable` module arrays).
 
     make
     sudo insmod snd-maya44ex.ko      # optional: unverified_rates=1
+    sudo make install                # load automatically at boot (PCI alias)
+
+Recommended: `./dkms-install.sh` installs via DKMS (rebuilds automatically on kernel updates and loads at boot).
+`make install` alone is per-kernel.
+The DKMS script requires matching headers for the running kernel. After a kernel
+update, reboot into the new kernel and install its `linux-headers-$(uname -r)`
+package if the script reports missing headers.
 
 - `hw:eX,0` = out/in 1/2, `hw:eX,1` = out/in 3/4; stereo `S32_LE` (24-bit
   left-justified), 1024-frame periods, 2 periods.

@@ -598,7 +598,7 @@ static int maya_pcm_copy(struct snd_pcm_substream *ss, int channel,
 	struct maya_stream *st = maya_stream_of(chip, ss);
 	bool playback = ss->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	u8 *ring = chip->ring[maya_engine_of(ss)].area;
-	unsigned long frame = pos / FRAME_BYTES;
+	unsigned long frame = pos;
 	unsigned long frames = bytes / FRAME_BYTES;
 
 	while (frames) {
@@ -625,7 +625,7 @@ static int maya_pcm_silence(struct snd_pcm_substream *ss, int channel,
 	struct maya44ex *chip = snd_pcm_substream_chip(ss);
 	struct maya_stream *st = maya_stream_of(chip, ss);
 	u8 *ring = chip->ring[maya_engine_of(ss)].area;
-	unsigned long frame = pos / FRAME_BYTES;
+	unsigned long frame = pos;
 	unsigned long frames = bytes / FRAME_BYTES;
 
 	while (frames) {
