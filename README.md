@@ -1,7 +1,7 @@
 # snd-maya44ex
 
 ALSA driver for the ESI MAYA44 eX (PCI `19fe:7000`, ES7010L + 2x WM8776),
-written to the structure in "Writing an ALSA Driver" (chip struct in
+written to the structure in "[Writing an ALSA Driver](https://www.kernel.org/doc/html/v4.17/sound/kernel-api/writing-an-alsa-driver.html)" (chip struct in
 `card->private_data`, create/free pair, PCM and mixer components, PCI
 probe/remove, PM suspend/resume, `index`/`id`/`enable` module arrays).
 
