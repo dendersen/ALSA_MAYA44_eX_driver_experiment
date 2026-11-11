@@ -43,8 +43,6 @@ static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
 static bool enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;
 static bool unverified_rates;
-static int dbg_clk = -1;
-static int dbg_sel = -1;
 
 module_param_array(index, int, NULL, 0444);
 MODULE_PARM_DESC(index, "Index value for the MAYA44 eX card.");
@@ -55,10 +53,6 @@ MODULE_PARM_DESC(enable, "Enable the MAYA44 eX card.");
 module_param(unverified_rates, bool, 0444);
 MODULE_PARM_DESC(unverified_rates,
 		 "Also offer 88.2/96 kHz (clock timed, codec side not proven).");
-module_param(dbg_clk, int, 0444);
-MODULE_PARM_DESC(dbg_clk, "Debug: override the 16-bit clock word (-1 = off).");
-module_param(dbg_sel, int, 0444);
-MODULE_PARM_DESC(dbg_sel, "Debug: override the 0x1a0 select word (-1 = off).");
 
 #define PCI_VENDOR_ID_ESI	0x19fe
 #define PCI_DEVICE_ID_MAYA44EX	0x7000
@@ -363,11 +357,9 @@ static int maya_set_rate(struct maya44ex *chip, unsigned int rate)
 		return -EINVAL;
 
 	for (n = 0; n < NUM_ENGINES; n++)
-		maya_w16(chip, REG_RATE_CLK(n),
-			 dbg_clk >= 0 ? dbg_clk : maya_rates[i].clk);
+		maya_w16(chip, REG_RATE_CLK(n), maya_rates[i].clk);
 	maya_w8(chip, REG_ROUTE, 0x2a);
-	maya_w32(chip, REG_CLOCK_SEL, 0x80000000 |
-		 (dbg_sel >= 0 ? dbg_sel : maya_rates[i].sel));
+	maya_w32(chip, REG_CLOCK_SEL, 0x80000000 | maya_rates[i].sel);
 	/* write-1-to-clear */
 	maya_w32(chip, REG_CLOCK_STAT, maya_r32(chip, REG_CLOCK_STAT));
 	return 0;
@@ -598,7 +590,7 @@ static int maya_pcm_copy(struct snd_pcm_substream *ss, int channel,
 	struct maya_stream *st = maya_stream_of(chip, ss);
 	bool playback = ss->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	u8 *ring = chip->ring[maya_engine_of(ss)].area;
-	unsigned long frame = pos;
+	unsigned long frame = pos / FRAME_BYTES;
 	unsigned long frames = bytes / FRAME_BYTES;
 
 	while (frames) {
@@ -625,7 +617,7 @@ static int maya_pcm_silence(struct snd_pcm_substream *ss, int channel,
 	struct maya44ex *chip = snd_pcm_substream_chip(ss);
 	struct maya_stream *st = maya_stream_of(chip, ss);
 	u8 *ring = chip->ring[maya_engine_of(ss)].area;
-	unsigned long frame = pos;
+	unsigned long frame = pos / FRAME_BYTES;
 	unsigned long frames = bytes / FRAME_BYTES;
 
 	while (frames) {

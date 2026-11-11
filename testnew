@@ -1,0 +1,24 @@
+echo building snd-maya44ex
+make -j$(nproc)
+
+echo stopping pipewire and wireplumber
+systemctl --user stop pipewire pipewire-pulse wireplumber \
+  pipewire.socket pipewire-pulse.socket
+
+echo unloading snd-maya44ex
+sudo modprobe -r snd_maya44ex
+echo loading snd-maya44ex
+sudo insmod ./snd-maya44ex.ko
+
+
+for i in {2..10}; do
+  echo -n -e "waiting for the driver to initialize [$i/10]\r"
+  sleep 1
+done
+
+
+speaker-test -D hw:0,1 -c 2 -r 44100 -F S32_LE -t sine -f 440 -l 4
+
+echo starting pipewire and wireplumber
+
+systemctl --user start pipewire pipewire-pulse wireplumber
